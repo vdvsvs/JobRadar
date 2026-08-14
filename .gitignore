@@ -1,0 +1,37 @@
+# Secrets and local configuration
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+
+# Frontend
+web/node_modules/
+web/dist/
+node_modules/
+
+# Runtime data: resumes, cookies, databases, logs, backups, and browser state
+data/
+*.db
+*.sqlite*
+*.log
+
+# Test and browser artifacts
+coverage.xml
+.coverage
+htmlcov/
+playwright-report/
+test-results/
+
+# Editors and OS
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db

@@ -1,0 +1,13 @@
+.git
+.env
+.env.*
+data/
+web/node_modules/
+web/dist/
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.db
+*.sqlite*
+*.log
