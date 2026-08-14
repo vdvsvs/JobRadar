@@ -47,6 +47,10 @@ import { useEvaluationStore } from "./stores/useEvaluationStore";
 import { useTrackerStore } from "./stores/useTrackerStore";
 import { useInterviewStore } from "./stores/useInterviewStore";
 import { useResumeStore } from "./stores/useResumeStore";
+import {
+  getDueScanConfigIds,
+  startRadarScheduler,
+} from "./services/radarScheduler";
 import { useAutoPilotStore } from "./stores/useAutoPilotStore";
 import PersonalAssessment from "./components/assessment/PersonalAssessment";
 import MBTIQuestionnaire from "./components/assessment/MBTIQuestionnaire";
@@ -333,14 +337,33 @@ export default function App() {
   const location = useLocation();
 
   useEffect(() => {
+    let stopRadarScheduler = () => {};
+    let disposed = false;
+
     useUserStore.getState().loadFromBackend?.();
     useCompanyStore.getState().loadFromBackend?.();
     useAssessmentStore.getState().loadFromBackend?.();
-    useJobScanStore.getState().loadFromBackend();
+    void useJobScanStore
+      .getState()
+      .loadFromBackend()
+      .then(() => {
+        if (disposed) return;
+        stopRadarScheduler = startRadarScheduler(async () => {
+          const radar = useJobScanStore.getState();
+          if (radar.isScanning) return;
+          const dueIds = getDueScanConfigIds(radar.scanConfigs);
+          if (dueIds.length > 0) await radar.startScan(dueIds);
+        });
+      });
     useEvaluationStore.getState().loadFromBackend();
     useTrackerStore.getState().loadFromBackend();
     useInterviewStore.getState().loadFromBackend();
     useResumeStore.getState().loadFromBackend();
+
+    return () => {
+      disposed = true;
+      stopRadarScheduler();
+    };
   }, []);
 
   return (

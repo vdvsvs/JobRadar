@@ -141,16 +141,9 @@ export const useJobScanStore = create<JobScanState>((set, get) => ({
 
   addJobListing: async (job) => {
     try {
-      const result = await window.electronAPI.saveScannedJobs([job]);
-      const newJob: JobListing = {
-        ...job,
-        id: uuidv4(),
-        collected_at: new Date().toISOString(),
-        discovered_at: new Date().toISOString(),
-      };
-      set((state) => ({
-        jobListings: [newJob, ...state.jobListings],
-      }));
+      await window.electronAPI.saveJobs([job]);
+      const jobs = await window.electronAPI.getScannedJobs();
+      set({ jobListings: (jobs as JobListing[]) || [] });
     } catch (error) {
       console.error("Failed to save job listing:", error);
     }
@@ -222,7 +215,9 @@ export const useJobScanStore = create<JobScanState>((set, get) => ({
           const results = await window.electronAPI.searchJobs(query);
           const validated = await window.electronAPI.validateJobs(results);
           const jobs = Array.isArray((validated as any)?.jobs)
-            ? (validated as any).jobs
+            ? (validated as any).jobs.filter(
+                (job: any) => job.quality?.validityStatus !== "invalid",
+              )
             : [];
           const prepared = jobs.map((job: any) => ({
             ...job,
@@ -230,7 +225,7 @@ export const useJobScanStore = create<JobScanState>((set, get) => ({
             source_url:
               job.source_url || job.url || job.link || config.url_pattern,
           }));
-          await window.electronAPI.saveScannedJobs(prepared);
+          await window.electronAPI.saveJobs(prepared);
           await get().updateScanConfig(config.id, {
             last_scanned_at: new Date().toISOString(),
           });

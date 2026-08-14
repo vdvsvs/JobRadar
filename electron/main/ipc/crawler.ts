@@ -6,7 +6,11 @@ import {
   getVisionProvider,
 } from "./ai";
 import { settingsStore } from "./settings";
-import { dedupeJobs, enrichJobWithQuality } from "../lib/jobQuality";
+import {
+  dedupeJobs,
+  enrichJobWithQuality,
+  jobFingerprint,
+} from "../lib/jobQuality";
 
 // 招聘网站域名白名单
 const ALLOWED_DOMAINS = [
@@ -49,7 +53,8 @@ async function fetchWithTimeout(
 function insertJobListing(
   record: Record<string, unknown>,
   fallbackSource: string,
-): string {
+  knownJobs: Map<string, string>,
+): { id: string; inserted: boolean } {
   const id =
     (record.id as string) ||
     `job-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
@@ -70,15 +75,16 @@ function insertJobListing(
   const requirements = (record.requirements as string) || "";
   const tags = Array.isArray(record.tags) ? record.tags : [];
   const source = (record.source as string) || fallbackSource;
-  const existing = url
-    ? queryAll("SELECT id FROM job_listings WHERE source_url = ? LIMIT 1", [
-        url,
-      ])[0]
-    : queryAll(
-        'SELECT id FROM job_listings WHERE title = ? AND company = ? AND COALESCE(location_city, "") = ? LIMIT 1',
-        [title, company, location],
-      )[0];
-  if (existing?.id && existing.id !== id) return String(existing.id);
+  const identityKey = jobFingerprint({
+    title,
+    company,
+    location_city: location,
+    source_url: url,
+  });
+  const existingId = knownJobs.get(identityKey);
+  if (existingId && existingId !== id) {
+    return { id: existingId, inserted: false };
+  }
   executeRun(
     `INSERT OR REPLACE INTO job_listings (id, title, company, location_city, salary, tags, source, source_url, description, requirements, collected_at)
      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
@@ -96,7 +102,15 @@ function insertJobListing(
       new Date().toISOString(),
     ],
   );
-  return id;
+  knownJobs.set(identityKey, id);
+  return { id, inserted: true };
+}
+
+function loadJobIdentityMap(): Map<string, string> {
+  const rows = queryAll(
+    "SELECT id, title, company, location_city, source_url FROM job_listings",
+  );
+  return new Map(rows.map((row) => [jobFingerprint(row), String(row.id)]));
 }
 
 // 搜索结果类型定义
@@ -212,11 +226,17 @@ export function registerCrawlerHandlers() {
         }
 
         const prepared = dedupeJobs(records);
+        const validJobs = prepared.jobs.filter(
+          (job) => job.quality.validityStatus !== "invalid",
+        );
+        const knownJobs = loadJobIdentityMap();
+        let existingDuplicateCount = 0;
         const count = runInTransaction(() => {
           let n = 0;
-          for (const record of prepared.jobs) {
-            insertJobListing(record, "import");
-            n++;
+          for (const record of validJobs) {
+            const result = insertJobListing(record, "import", knownJobs);
+            if (result.inserted) n++;
+            else existingDuplicateCount++;
           }
           return n;
         });
@@ -224,7 +244,7 @@ export function registerCrawlerHandlers() {
         return {
           success: true,
           count,
-          duplicateCount: prepared.duplicateCount,
+          duplicateCount: prepared.duplicateCount + existingDuplicateCount,
         };
       } catch (error) {
         console.error("crawler:import error:", error);
@@ -239,17 +259,27 @@ export function registerCrawlerHandlers() {
       const list = Array.isArray(jobs) ? jobs : [];
       const prepared = dedupeJobs(list as Array<Record<string, unknown>>);
 
+      const validJobs = prepared.jobs.filter(
+        (job) => job.quality.validityStatus !== "invalid",
+      );
+      const knownJobs = loadJobIdentityMap();
+      let existingDuplicateCount = 0;
       const count = runInTransaction(() => {
         let n = 0;
-        for (const job of prepared.jobs) {
+        for (const job of validJobs) {
           const record = (job || {}) as Record<string, unknown>;
-          insertJobListing(record, "search");
-          n++;
+          const result = insertJobListing(record, "search", knownJobs);
+          if (result.inserted) n++;
+          else existingDuplicateCount++;
         }
         return n;
       });
       persist();
-      return { success: true, count, duplicateCount: prepared.duplicateCount };
+      return {
+        success: true,
+        count,
+        duplicateCount: prepared.duplicateCount + existingDuplicateCount,
+      };
     } catch (error) {
       console.error("crawler:saveJobs error:", error);
       throw error;
@@ -477,9 +507,10 @@ async function aiSearchJobs(query: string) {
   }));
 
   // 批量保存到数据库
+  const knownJobs = loadJobIdentityMap();
   runInTransaction(() => {
     for (const job of savedJobs) {
-      insertJobListing(job, "ai_search");
+      insertJobListing(job, "ai_search", knownJobs);
     }
   });
   persist();

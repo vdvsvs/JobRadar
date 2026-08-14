@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - 修复安全自动投递白名单输入框边输入边保存导致文本重复的问题。
+- 接通岗位雷达的间隔调度，过滤无效岗位，并按规范化标题、公司和城市跨批次去重。
 
 ### Added
 

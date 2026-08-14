@@ -1,3 +1,5 @@
+import { createHash } from "node:crypto";
+
 export interface RawJobLike {
   id?: unknown;
   title?: unknown;
@@ -53,6 +55,18 @@ export function jobUrl(job: RawJobLike): string {
 }
 
 export function jobFingerprint(job: RawJobLike): string {
+  const rawTitle = asText(job.title || job.name);
+  const rawCompany = asText(job.company || job.company_name);
+  const title = rawTitle === "未命名职位" ? "" : normalize(rawTitle);
+  const company = rawCompany === "未知公司" ? "" : normalize(rawCompany);
+  const location = normalize(job.location || job.location_city || job.city);
+  if (title && company) {
+    const digest = createHash("md5")
+      .update(`${title}\0${company}\0${location}`)
+      .digest("hex");
+    return `job:${digest}`;
+  }
+
   const url = jobUrl(job);
   if (url) {
     try {
@@ -62,9 +76,6 @@ export function jobFingerprint(job: RawJobLike): string {
       return `url:${normalize(url)}`;
     }
   }
-  const title = normalize(job.title || job.name);
-  const company = normalize(job.company || job.company_name);
-  const location = normalize(job.location || job.location_city || job.city);
   return `job:${company}|${title}|${location}`;
 }
 

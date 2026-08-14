@@ -16,6 +16,7 @@ venv/
 web/node_modules/
 web/dist/
 node_modules/
+*.tsbuildinfo
 package-lock.json
 dist-electron/
 dist_electron/
