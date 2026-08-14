@@ -1,0 +1,18 @@
+{
+  "name": "王荣添",
+  "major": "软件工程",
+  "education": "本科",
+  "skillsMin": 29,
+  "interestsMin": 5,
+  "skills": [
+    "Java",
+    "SpringBoot",
+    "MyBatis",
+    "MySQL",
+    "Redis",
+    "SpringCloud",
+    "Git",
+    "Linux"
+  ],
+  "projects": ["物资综合管理系统", "微服务企业办公系统"]
+}

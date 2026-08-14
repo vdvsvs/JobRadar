@@ -1,0 +1,112 @@
+{
+  "name": "job-radar",
+  "version": "0.2.0",
+  "description": "岗位雷达与 AI 求职助手桌面应用",
+  "main": "./out/main/index.js",
+  "author": "Wang rongtian",
+  "license": "MIT",
+  "packageManager": "pnpm@11.9.0",
+  "scripts": {
+    "dev": "set NODE_ENV=development && electron-vite dev",
+    "build": "electron-vite build",
+    "typecheck": "tsc --noEmit",
+    "test:resume": "node scripts/resume-regression-check.cjs",
+    "test:policy": "node scripts/auto-apply-policy-check.cjs",
+    "test:crawler": "node scripts/crawler-examples-check.cjs",
+    "test:safety": "node scripts/safety-chain-acceptance-check.cjs",
+    "test:radar": "node scripts/radar-integration-check.cjs",
+    "test": "pnpm test:resume && pnpm test:policy && pnpm test:crawler && pnpm test:safety && pnpm test:radar",
+    "preview": "electron-vite preview",
+    "dist": "pnpm build && electron-builder",
+    "dist:win": "pnpm build && electron-builder --win",
+    "desktop": "pnpm build && electron-builder --win --x64 --dir --publish never && pnpm shortcut",
+    "shortcut": "powershell -ExecutionPolicy Bypass -File scripts/update-desktop-shortcut.ps1",
+    "lint": "pnpm typecheck",
+    "preview:dist": "electron-vite preview && electron-builder"
+  },
+  "dependencies": {
+    "@mantine/core": "^7.17.8",
+    "@mantine/dates": "7.17.8",
+    "@mantine/form": "^7.17.8",
+    "@mantine/hooks": "^7.17.8",
+    "@mantine/notifications": "^7.17.8",
+    "@tabler/icons-react": "^3.21.0",
+    "axios": "^1.7.7",
+    "date-fns": "^4.1.0",
+    "electron-store": "^8.2.0",
+    "mantine-react-table": "^2.0.0-beta.9",
+    "pdfjs-dist": "^4.9.155",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-router-dom": "^6.28.0",
+    "sql.js": "^1.10.0",
+    "uuid": "^11.1.0",
+    "zod": "^3.23.8",
+    "zustand": "^5.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@types/uuid": "^10.0.0",
+    "@vitejs/plugin-react": "^4.3.4",
+    "electron": "^33.4.11",
+    "electron-builder": "^24.13.0",
+    "electron-vite": "^2.3.0",
+    "esbuild": "0.21.5",
+    "eslint": "^9.15.0",
+    "prettier": "^3.3.3",
+    "typescript": "^5.6.0",
+    "vite": "^5.4.11"
+  },
+  "build": {
+    "appId": "com.jobradar.app",
+    "productName": "JobRadar",
+    "directories": {
+      "output": "dist_electron",
+      "buildResources": "electron/resources"
+    },
+    "files": [
+      "electron/**/*",
+      "out/main/**/*",
+      "out/preload/**/*",
+      "dist-electron/**/*",
+      "node_modules/sql.js/dist/sql-wasm.wasm",
+      "GETTING_STARTED.md",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "electron/resources",
+        "to": "resources"
+      }
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "signAndEditExecutable": false
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
+    },
+    "portable": {
+      "artifactName": "${productName}-Portable-${version}.exe"
+    },
+    "forceCodeSigning": false,
+    "asar": true
+  }
+}

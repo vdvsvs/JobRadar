@@ -1,0 +1,116 @@
+{
+  "id": "拉勾",
+  "name": "拉勾职位数据",
+  "description": "从拉勾抓取职位和公司信息",
+  "version": "1.0.0",
+  "source": {
+    "name": "拉勾",
+    "type": "api",
+    "endpoint": "https://www.lagou.com/jobs/v2/positionAjax.json",
+    "method": "POST",
+    "headers": {
+      "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+      "Accept": "application/json, text/javascript, */*; q=0.01",
+      "Referer": "https://www.lagou.com/wn/jobs"
+    },
+    "auth": {
+      "type": "cookie",
+      "cookie": "user_trace_token=xxx; X_HTTP_TOKEN=xxx"
+    }
+  },
+  "request": {
+    "body": {
+      "first": "true",
+      "pn": 1,
+      "kd": "Java 后端 实习",
+      "city": "郑州"
+    },
+    "pagination": {
+      "type": "page",
+      "pageParam": "pn",
+      "pageSize": 15,
+      "maxPages": 4
+    }
+  },
+  "mapping": [
+    {
+      "source": "content.positionResult.result",
+      "target": "jobs",
+      "transform": "array"
+    }
+  ],
+  "fieldMapping": [
+    {
+      "source": "positionName",
+      "target": "title",
+      "transform": "string"
+    },
+    {
+      "source": "companyFullName",
+      "target": "companyName",
+      "transform": "string"
+    },
+    {
+      "source": "city",
+      "target": "location.city",
+      "transform": "string"
+    },
+    {
+      "source": "district",
+      "target": "location.district",
+      "transform": "string"
+    },
+    {
+      "source": "salary",
+      "target": "salary",
+      "transform": "string"
+    },
+    {
+      "source": "positionAdvantage",
+      "target": "description",
+      "transform": "string"
+    },
+    {
+      "source": "skillLables",
+      "target": "tags",
+      "transform": "array"
+    },
+    {
+      "source": "companySize",
+      "target": "scale",
+      "transform": "enum",
+      "options": {
+        "mapping": {
+          "少于15人": "startup",
+          "15-50人": "startup",
+          "50-150人": "medium",
+          "150-500人": "medium",
+          "500-2000人": "large",
+          "2000人以上": "large"
+        }
+      }
+    }
+  ],
+  "transform": [
+    {
+      "type": "filter",
+      "params": {
+        "field": "title",
+        "operator": "contains",
+        "value": "Java"
+      }
+    }
+  ],
+  "rateLimit": {
+    "requestsPerSecond": 1,
+    "delayBetweenRequests": 1200,
+    "retryCount": 2,
+    "retryDelay": 3000
+  },
+  "notes": [
+    "拉勾常触发访问验证，建议优先使用内置浏览器登录后再抓取",
+    "接口字段可能随平台调整，失败时应记录验证码/登录失效原因",
+    "仅用于安全导入配置示例，不绕过平台风控"
+  ]
+}

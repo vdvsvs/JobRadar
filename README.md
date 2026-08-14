@@ -1,13 +1,45 @@
 # JobRadar
 
-个人使用的全网岗位监控与人岗匹配系统。
+JobRadar 是一个本地优先的岗位雷达与 AI 求职助手桌面应用。项目将原 `career-assistant` 的求职全流程能力与 JobRadar 的渠道监控、清洗去重和匹配设计合并到同一个 Electron 应用中。
 
-当前仓库处于实施前规划阶段，尚未包含可运行的后端或前端代码。设计与分阶段实施说明见：
+## 已合并功能
 
-- `全网岗位监控系统-任务书.md`
-- `prompts/1-阶段一-MVP.md`
-- `prompts/2-阶段二-AI匹配与推送.md`
-- `prompts/3-阶段三-全渠道与前端.md`
-- `prompts/4-阶段四-稳定性与运维.md`
+- 岗位获取：搜索 API、JSON/CSV 导入、内嵌招聘页面与视觉模型提取
+- 岗位雷达：8 渠道预设、真实搜索源扫描、质量校验、去重和本地岗位库
+- AI 匹配：简历解析、多维岗位评分、公司分析和推荐理由
+- 求职工作流：个人评估、简历生成、面试准备、投递跟踪和安全自动投递
+- 本地数据：sql.js SQLite 持久化、设置加密存储、数据导入导出
 
-开始实施前先阅读 `AGENTS.md`，每个阶段必须在验收和测试通过后再进入下一阶段。Mock 采集数据仅用于开发验证，不计入真实渠道验收。
+岗位雷达不会生成模拟岗位。使用扫描功能前，需要在“数据源管理”中配置 Bing、SerpAPI 或自定义搜索源。招聘网站登录和验证码由用户在内嵌浏览器中手动完成。
+
+## 开发运行
+
+要求 Node.js 20+ 和 pnpm 11+。
+
+```powershell
+pnpm install
+pnpm dev
+```
+
+```powershell
+pnpm test
+pnpm typecheck
+pnpm build
+```
+
+Windows 打包：
+
+```powershell
+pnpm dist:win
+```
+
+## 项目结构
+
+- `electron/`：主进程、IPC、sql.js 数据库、AI 与采集实现
+- `src/`：React 界面、Zustand 状态和业务组件
+- `public/`：提示词与合规采集示例
+- `scripts/`：回归、安全链路和岗位雷达检查
+- `docs/`：使用、采集、AI 集成和验收文档
+- `prompts/`、`全网岗位监控系统-任务书.md`：JobRadar 原始规划资料
+
+所有简历、API Key、数据库和浏览器状态都保存在本机，不进入 Git 仓库。

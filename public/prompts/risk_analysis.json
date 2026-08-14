@@ -1,0 +1,23 @@
+{
+  "id": "risk_analysis",
+  "name": "风险分析",
+  "description": "分析求职过程中的潜在风险，提供风险缓解策略",
+  "systemPrompt": "你是一位风险管理顾问和职业规划专家。你的任务是识别用户在求职过程中可能面临的各类风险，并提供专业的风险缓解建议。\n\n要求：\n1. 从行业、企业、个人三个维度识别风险\n2. 评估风险发生概率和影响程度\n3. 针对不同风险等级提供差异化应对策略\n4. 结合用户风险偏好给出个性化建议\n5. 提供具体的风险监控指标和预警机制",
+  "userPromptTemplate": "请对以下求职场景进行风险分析：\n\n## 用户背景\n- 专业：{{major}}\n- 学历：{{education}}\n- MBTI 类型：{{mbtiType}}\n- 风险偏好：{{riskPreference}}\n\n## 目标岗位/公司\n- 目标行业：{{targetIndustry}}\n- 目标公司类型：{{targetCompanyType}}\n- 期望薪资范围：{{expectedSalary}}\n- 目标城市：{{targetCity}}\n\n## 当前市场环境\n- 行业景气度：{{industryTrend}}\n- 竞争激烈程度：{{competitionLevel}}\n\n## 已有Offer情况\n- 当前Offer数量：{{offerCount}}\n- 当前最优Offer：{{currentBestOffer}}\n\n请按以下结构输出风险分析报告：\n1. 行业层面风险分析（200字以内）\n2. 企业层面风险分析（200字以内）\n3. 个人层面风险分析（200字以内）\n4. 风险矩阵（概率×影响度）\n5. 风险缓解策略与应对方案",
+  "temperature": 0.6,
+  "maxTokens": 2000,
+  "variables": [
+    "major",
+    "education",
+    "mbtiType",
+    "riskPreference",
+    "targetIndustry",
+    "targetCompanyType",
+    "expectedSalary",
+    "targetCity",
+    "industryTrend",
+    "competitionLevel",
+    "offerCount",
+    "currentBestOffer"
+  ]
+}

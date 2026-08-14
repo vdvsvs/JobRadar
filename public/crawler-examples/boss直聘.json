@@ -1,0 +1,142 @@
+{
+  "id": "boss直聘",
+  "name": "Boss 直聘职位数据",
+  "description": "从 Boss 直聘抓取职位和公司信息",
+  "version": "1.0.0",
+  "source": {
+    "name": "Boss 直聘",
+    "type": "api",
+    "endpoint": "https://www.zhipin.com/wapi/zpgeek/search/joblist.json",
+    "method": "GET",
+    "headers": {
+      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+      "Accept": "application/json",
+      "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8"
+    },
+    "auth": {
+      "type": "cookie",
+      "cookie": "wt2=xxx; __zp_stoken__=xxx"
+    }
+  },
+  "request": {
+    "queryParams": {
+      "query": "前端开发",
+      "city": "101010100",
+      "page": 1,
+      "pageSize": 30,
+      "salary": "406"
+    },
+    "pagination": {
+      "type": "page",
+      "pageParam": "page",
+      "pageSize": 30,
+      "maxPages": 10
+    }
+  },
+  "mapping": [
+    {
+      "source": "zpData.jobList",
+      "target": "jobs",
+      "transform": "array"
+    }
+  ],
+  "fieldMapping": [
+    {
+      "source": "jobName",
+      "target": "title",
+      "transform": "string"
+    },
+    {
+      "source": "salaryDesc",
+      "target": "salary",
+      "transform": "string"
+    },
+    {
+      "source": "jobLabels",
+      "target": "tags",
+      "transform": "string",
+      "options": {
+        "separator": ","
+      }
+    },
+    {
+      "source": "brandName",
+      "target": "companyName",
+      "transform": "string"
+    },
+    {
+      "source": "brandIndustry",
+      "target": "industry",
+      "transform": "string"
+    },
+    {
+      "source": "brandScaleName",
+      "target": "scale",
+      "transform": "enum",
+      "options": {
+        "mapping": {
+          "0-20人": "startup",
+          "20-99人": "startup",
+          "100-499人": "medium",
+          "500-999人": "medium",
+          "1000人以上": "large"
+        }
+      }
+    },
+    {
+      "source": "cityName",
+      "target": "location.city",
+      "transform": "string"
+    },
+    {
+      "source": "areaDistrict",
+      "target": "location.district",
+      "transform": "string"
+    },
+    {
+      "source": "welfareList",
+      "target": "benefits",
+      "transform": "string",
+      "options": {
+        "separator": ","
+      }
+    },
+    {
+      "source": "jobDescription",
+      "target": "description",
+      "transform": "string",
+      "options": {
+        "stripHtml": true
+      }
+    }
+  ],
+  "rateLimit": {
+    "requestsPerSecond": 2,
+    "delayBetweenRequests": 500,
+    "retryCount": 3,
+    "retryDelay": 2000
+  },
+  "transform": [
+    {
+      "type": "merge",
+      "params": {
+        "fields": ["location.city", "location.district"],
+        "target": "location.fullAddress",
+        "separator": " "
+      }
+    },
+    {
+      "type": "filter",
+      "params": {
+        "field": "salary",
+        "operator": "contains",
+        "value": "K"
+      }
+    }
+  ],
+  "notes": [
+    "需要登录态 Cookie 才能访问",
+    "建议使用代理 IP 避免被限制",
+    "频率限制较严格，建议降低并发"
+  ]
+}

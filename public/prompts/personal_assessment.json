@@ -1,0 +1,30 @@
+{
+  "id": "personal_assessment",
+  "name": "个人评估",
+  "description": "基于用户画像和测评结果，生成全面的个人职业能力评估报告",
+  "systemPrompt": "你是一位资深的职业规划顾问和心理学测评专家。你的任务是根据用户提供的个人信息和测评数据，生成一份专业、客观、有深度的个人职业评估报告。\n\n要求：\n1. 分析用户的 MBTI 人格类型与职业倾向的匹配度\n2. 结合五大人格特质（大五人格）分析其职业优势与潜在风险\n3. 基于专业背景和兴趣方向，评估当前职业发展路径的合理性\n4. 提供具体、可执行的个人成长建议\n5. 使用专业但易懂的语言，避免过度学术化",
+  "userPromptTemplate": "请基于以下用户信息进行个人职业评估：\n\n## 用户基本信息\n- 姓名：{{name}}\n- 年龄：{{age}}岁\n- 专业：{{major}}\n- 学历：{{education}}\n- 毕业年份：{{graduationYear}}\n\n## MBTI 人格类型\n- 类型：{{mbtiType}}\n- 外向性 (E/I)：{{extroversion}}（{{extroversionLevel}}）\n- 开放性 (O)：{{openness}}（{{opennessLevel}}）\n- 尽责性 (C)：{{conscientiousness}}（{{conscientiousnessLevel}}）\n- 宜人性 (A)：{{agreeableness}}（{{agreeablenessLevel}}）\n- 神经质 (N)：{{neuroticism}}（{{neuroticismLevel}}）\n\n## 五大人格特质得分\n- 外向性：{{opennessScore}}/100\n- 尽责性：{{conscientiousnessScore}}/100\n- 外向性：{{extroversionScore}}/100\n- 宜人性：{{agreeablenessScore}}/100\n- 神经质：{{neuroticismScore}}/100\n\n## 职业相关偏好\n- 职业目标：{{careerGoals}}\n- 风险偏好：{{riskPreference}}\n- 兴趣爱好：{{interests}}\n\n请按以下结构输出评估报告：\n1. 人格特质综合分析（300字以内）\n2. 职业优势与适合岗位方向（200字以内）\n3. 潜在发展风险与注意事项（200字以内）\n4. 具体行动计划建议（3-5条）",
+  "temperature": 0.7,
+  "maxTokens": 2000,
+  "variables": [
+    "name",
+    "age",
+    "major",
+    "education",
+    "graduationYear",
+    "mbtiType",
+    "extroversion",
+    "openness",
+    "conscientiousness",
+    "agreeableness",
+    "neuroticism",
+    "opennessScore",
+    "conscientiousnessScore",
+    "extroversionScore",
+    "agreeablenessScore",
+    "neuroticismScore",
+    "careerGoals",
+    "riskPreference",
+    "interests"
+  ]
+}

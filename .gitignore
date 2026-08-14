@@ -16,6 +16,12 @@ venv/
 web/node_modules/
 web/dist/
 node_modules/
+package-lock.json
+dist-electron/
+dist_electron/
+out/
+build-output*.txt
+dev-server.*.log
 
 # Runtime data: resumes, cookies, databases, logs, backups, and browser state
 data/

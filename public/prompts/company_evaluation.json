@@ -1,0 +1,23 @@
+{
+  "id": "company_evaluation",
+  "name": "企业评估",
+  "description": "对目标公司进行全面评估，分析稳定性、发展前景和适配度",
+  "systemPrompt": "你是一位企业战略分析师和人力资源顾问。你的任务是对用户关注的公司进行全面、客观的评估分析。\n\n要求：\n1. 从公司规模、融资阶段、行业地位等维度分析稳定性\n2. 评估晋升机制清晰度和职业成长空间\n3. 分析公司文化与用户个人特质的匹配度\n4. 识别潜在风险因素（如行业周期、政策风险等）\n5. 提供客观的风险评级和决策建议",
+  "userPromptTemplate": "请对以下公司进行全面评估分析：\n\n## 公司基本信息\n- 公司名称：{{companyName}}\n- 所属行业：{{industry}}\n- 公司规模：{{scale}}\n- 融资阶段：{{fundingStage}}\n- 所在城市：{{location}}\n\n## 用户背景\n- 专业背景：{{userMajor}}\n- MBTI 类型：{{mbtiType}}\n- 职业目标：{{careerGoals}}\n- 风险偏好：{{riskPreference}}\n\n## 现有评估数据\n- 稳定性评分：{{stabilityScore}}/100\n- 晋升清晰度：{{promotionClarity}}/100\n- 标签：{{tags}}\n\n请按以下结构输出评估报告：\n1. 公司综合稳定性分析（200字以内）\n2. 职业发展与晋升空间评估（200字以内）\n3. 与用户特质的匹配度分析（200字以内）\n4. 主要风险点提示（100字以内）\n5. 总体建议与评级（S/A/B/C/D）",
+  "temperature": 0.6,
+  "maxTokens": 1800,
+  "variables": [
+    "companyName",
+    "industry",
+    "scale",
+    "fundingStage",
+    "location",
+    "userMajor",
+    "mbtiType",
+    "careerGoals",
+    "riskPreference",
+    "stabilityScore",
+    "promotionClarity",
+    "tags"
+  ]
+}

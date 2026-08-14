@@ -1,21 +1,38 @@
-# AGENTS.md — JobRadar 项目指令
+# AGENTS.md - JobRadar 项目指令
 
 ## 项目概述
 
-JobRadar 是一个个人使用的全网岗位监控系统。从 8 大招聘渠道定时采集新增岗位，经数据清洗后入库，基于 AI 计算用户简历与岗位 JD 的匹配度评分，对高匹配新岗位实时推送通知。
+JobRadar 是本地优先的岗位雷达与 AI 求职助手桌面应用。它在一个 Electron 应用中完成岗位获取、质量校验、本地入库、AI 匹配、公司分析、简历与面试准备、投递跟踪。
+
+`prompts/`、`全网岗位监控系统-任务书.md`、旧 Python/Vue 骨架文件是原 JobRadar 规划资料，不是当前运行时架构。新功能应直接整合到 Electron + React 主应用，不再建立 FastAPI/Vue/ChromaDB 第二套系统。
 
 ## 技术栈
 
-- **后端**: Python 3.11+ / FastAPI / Uvicorn
-- **爬虫**: httpx (异步HTTP) / Playwright (JS渲染页面)
-- **数据库**: SQLAlchemy ORM + SQLite (初期) / MySQL (扩展)
-- **AI**: OpenAI API (text-embedding-3-small + gpt-4o-mini) / ChromaDB (向量存储)
-- **调度**: APScheduler
-- **前端**: Vue3 + Vite + Element Plus + AG Grid
-- **部署**: Docker Compose
-- **包管理**: pip (后端) / pnpm (前端)
+- 桌面运行时：Electron 33 + electron-vite
+- 界面：React 19 + TypeScript + Mantine 7 + React Router
+- 状态：Zustand
+- 本地数据：sql.js SQLite + electron-store
+- AI：OpenAI 兼容 API，支持 DeepSeek、OpenAI 和自定义 Provider
+- 岗位获取：搜索 API、JSON/CSV 导入、内嵌浏览器与视觉模型提取
+- 校验：TypeScript + Node.js 回归脚本
+- 包管理：pnpm 11
 
-## 项目目录结构
+## 当前目录结构
+
+```text
+JobRadar/
+├── electron/                 # 主进程、preload、IPC、数据库、AI 与采集
+├── src/                      # React 界面、Zustand store、类型与业务服务
+├── public/                   # Prompt 和合规采集示例
+├── scripts/                  # 回归、安全链路和岗位雷达检查
+├── docs/                     # 使用、AI、采集与验收文档
+├── prompts/                  # 原 JobRadar 分阶段规划资料
+├── package.json
+├── pnpm-lock.yaml
+└── pnpm-workspace.yaml
+```
+
+## 历史规划目录（仅参考）
 
 ```
 job-radar/
@@ -123,9 +140,21 @@ job-radar/
     └── test_matching/
 ```
 
-## 编码规范
+## 当前编码规范
+
+- 保持 TypeScript `strict: true`，避免新增 `any`；IPC 边界数据优先用 Zod 或现有类型校验。
+- React 使用函数组件和 Hooks，组件继续使用 Mantine 现有设计模式。
+- 状态优先放入现有 Zustand store，不为单一调用新增抽象层。
+- Renderer 只通过 `window.electronAPI` 访问本地能力；接口类型以 `electron/preload/index.ts` 为唯一来源。
+- 复用现有 `job_listings`、`scan_configs`、`evaluation_results` 等表；修改 schema 前必须征得确认。
+- 采集渠道失败不应中断其他渠道，但必须向用户返回可见错误。
+- 岗位雷达必须使用真实搜索源。Mock 只能出现在显式的测试脚本中，不得写入用户岗位库。
+- 不硬编码密钥，不提交 `.env`、API Key、简历、Cookie、数据库、日志或浏览器状态。
+
+## 历史规划编码规范（不适用于当前运行代码）
 
 ### Python 后端
+
 - 使用 `type hints` 标注所有函数签名
 - 使用 `pydantic` 模型做请求/响应校验
 - 使用 `async/await` 异步编程（FastAPI + httpx）
@@ -135,17 +164,20 @@ job-radar/
 - 错误处理：爬虫失败不中断整体流程，记录日志后继续
 
 ### Vue 前端
+
 - 使用 `<script setup lang="ts">` 组合式 API
 - API 调用统一封装在 `src/api/` 目录
 - 状态管理使用 Pinia
 - 使用 Element Plus 组件库
 
 ### 数据库
+
 - 使用 SQLAlchemy 2.0 风格 (Mapped / mapped_column)
 - 时间字段统一使用 UTC 存储，展示时转 Asia/Shanghai
 - 布尔字段使用 Boolean 类型
 
 ### 关键约定
+
 - 爬虫统一输出 `RawJobItem` dataclass，Pipeline 统一消费
 - 岗位去重指纹: `MD5(规范化标题 + "\\0" + 规范化公司名 + "\\0" + 规范化城市)`；跨渠道合并需单独的来源关联模型，未实现前不宣称已合并
 - 匹配评分范围: 0.0 - 5.0
@@ -154,7 +186,7 @@ job-radar/
 - Mock 数据仅用于开发验证，必须显式启用，不能计入真实采集验收或写入生产数据
 - `.env`、简历、Cookie、数据库、日志和浏览器状态统一保存在 Git 忽略目录中
 
-## 环境变量 (.env)
+## 历史规划环境变量（当前应用不读取）
 
 ```
 DATABASE_URL=sqlite:///data/jobradar.db
@@ -177,24 +209,19 @@ TIMEZONE=Asia/Shanghai
 
 ## 常用命令
 
-```bash
-# 后端
-pip install -r requirements.txt
-uvicorn api.main:app --reload --port 8000
-
-# 调度器（独立进程）
-python -m crawlers.scheduler
-
-# 前端
-cd web && pnpm install && pnpm dev
-
-# Docker 一键启动
-docker compose up -d
+```powershell
+pnpm install
+pnpm dev
+pnpm typecheck
+pnpm test
+pnpm build
+pnpm dist:win
 ```
 
-## 实施顺序
+## 历史实施资料
 
-按 `prompts/` 目录下的 4 个阶段文件依次执行:
+下列文件记录原 Python/Vue 方案，仅用于追溯需求，不再按阶段直接执行：
+
 1. `1-阶段一-MVP.md` — 项目骨架 + 2渠道采集 + 数据处理 + 基础API + 前端列表
 2. `2-阶段二-AI匹配与推送.md` — 简历解析 + AI匹配 + 推送系统
 3. `3-阶段三-全渠道与前端.md` — 剩余6渠道 + 前端完善

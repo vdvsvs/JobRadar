@@ -1,0 +1,154 @@
+{
+  "id": "实习僧",
+  "name": "实习僧实习职位数据",
+  "description": "从实习僧抓取实习职位信息",
+  "version": "1.0.0",
+  "source": {
+    "name": "实习僧",
+    "type": "api",
+    "endpoint": "https://www.shixiseng.com/api/search",
+    "method": "POST",
+    "headers": {
+      "Content-Type": "application/json",
+      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+      "Accept": "application/json"
+    }
+  },
+  "request": {
+    "body": {
+      "keyword": "前端",
+      "city": "北京",
+      "type": "intern",
+      "page": 1,
+      "pageSize": 20
+    },
+    "pagination": {
+      "type": "page",
+      "pageParam": "page",
+      "pageSize": 20,
+      "maxPages": 5
+    }
+  },
+  "mapping": [
+    {
+      "source": "data.list",
+      "target": "internships",
+      "transform": "array"
+    }
+  ],
+  "fieldMapping": [
+    {
+      "source": "title",
+      "target": "title",
+      "transform": "string"
+    },
+    {
+      "source": "company_name",
+      "target": "companyName",
+      "transform": "string"
+    },
+    {
+      "source": "company_scale",
+      "target": "scale",
+      "transform": "enum",
+      "options": {
+        "mapping": {
+          "少于20人": "startup",
+          "20-99人": "startup",
+          "100-499人": "medium",
+          "500-999人": "medium",
+          "1000人以上": "large"
+        }
+      }
+    },
+    {
+      "source": "company_industry",
+      "target": "industry",
+      "transform": "string"
+    },
+    {
+      "source": "city",
+      "target": "location.city",
+      "transform": "string"
+    },
+    {
+      "source": "district",
+      "target": "location.district",
+      "transform": "string"
+    },
+    {
+      "source": "salary",
+      "target": "salary",
+      "transform": "string"
+    },
+    {
+      "source": "tags",
+      "target": "tags",
+      "transform": "array",
+      "options": {
+        "separator": ","
+      }
+    },
+    {
+      "source": "description",
+      "target": "description",
+      "transform": "string",
+      "options": {
+        "stripHtml": true,
+        "maxLength": 500
+      }
+    },
+    {
+      "source": "requirements",
+      "target": "requirements",
+      "transform": "string",
+      "options": {
+        "stripHtml": true
+      }
+    },
+    {
+      "source": "duration",
+      "target": "duration",
+      "transform": "string"
+    },
+    {
+      "source": "days_per_week",
+      "target": "daysPerWeek",
+      "transform": "number"
+    },
+    {
+      "source": "start_date",
+      "target": "startDate",
+      "transform": "date",
+      "options": {
+        "format": "yyyy-MM-dd"
+      }
+    }
+  ],
+  "transform": [
+    {
+      "type": "merge",
+      "params": {
+        "fields": ["location.city", "location.district"],
+        "target": "location.fullAddress",
+        "separator": " "
+      }
+    },
+    {
+      "type": "rename",
+      "params": {
+        "mapping": {
+          "days_per_week": "workDaysPerWeek",
+          "start_date": "startDate"
+        }
+      }
+    }
+  ],
+  "rateLimit": {
+    "requestsPerSecond": 3,
+    "delayBetweenRequests": 300,
+    "retryCount": 2,
+    "retryDelay": 1000
+  },
+  "notes": ["适合获取实习职位信息", "API 可能需要验证码", "建议使用校园网 IP"]
+}

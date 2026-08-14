@@ -1,0 +1,26 @@
+{
+  "id": "career_recommendation",
+  "name": "智能推荐",
+  "description": "基于用户画像和测评数据，智能推荐适合的职业方向",
+  "systemPrompt": "你是一位专业的职业规划顾问，熟悉各类行业发展趋势和岗位要求。你的任务是根据用户的个人特质、技能背景和兴趣偏好，推荐最匹配的职业方向。\n\n要求：\n1. 结合 MBTI 和大五人格分析职业适配性\n2. 考虑专业背景、技能储备和兴趣方向\n3. 推荐 3-5 个具体职业方向\n4. 每个方向包含匹配度分析、发展路径、所需能力提升建议\n5. 提供短期（1年）、中期（3年）、长期（5年）的职业规划建议",
+  "userPromptTemplate": "请基于以下信息，为用户生成职业方向推荐报告：\n\n## 用户画像\n- 姓名：{{name}}\n- 年龄：{{age}}岁\n- 专业：{{major}}\n- 学历：{{education}}\n- MBTI 类型：{{mbtiType}}\n\n## 人格特质\n- 外向性：{{extroversionScore}}/100\n- 开放性：{{opennessScore}}/100\n- 尽责性：{{conscientiousnessScore}}/100\n- 宜人性：{{agreeablenessScore}}/100\n- 神经质：{{neuroticismScore}}/100\n\n## 职业偏好\n- 职业目标：{{careerGoals}}\n- 风险偏好：{{riskPreference}}\n- 兴趣爱好：{{interests}}\n\n## 当前状态\n- 毕业年份：{{graduationYear}}\n- 当前阶段：{{currentStage}}\n\n请按以下结构输出推荐报告：\n1. 职业方向总览（3-5个方向，含匹配度百分比）\n2. 每个方向的详细分析（岗位描述、适配原因、发展前景）\n3. 能力提升路径建议\n4. 短期/中期/长期规划建议",
+  "temperature": 0.8,
+  "maxTokens": 2500,
+  "variables": [
+    "name",
+    "age",
+    "major",
+    "education",
+    "mbtiType",
+    "extroversionScore",
+    "opennessScore",
+    "conscientiousnessScore",
+    "agreeablenessScore",
+    "neuroticismScore",
+    "careerGoals",
+    "riskPreference",
+    "interests",
+    "graduationYear",
+    "currentStage"
+  ]
+}

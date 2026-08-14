@@ -1,0 +1,11 @@
+姓名：高毅豪
+专业：软件工程本科
+
+求职意向：Java后端开发实习生，期望城市郑州及周边。
+
+技能栈：
+Java、SpringBoot、MyBatis、MySQL、Redis、SpringCloud、Git、Linux。
+
+项目经历：
+物资综合管理单体系统：负责用户、物资入库、出库、库存查询等后端模块开发。
+微服务企业办公系统：使用 SpringCloud、Redis、MySQL 完成企业办公业务模块拆分与接口联调。
